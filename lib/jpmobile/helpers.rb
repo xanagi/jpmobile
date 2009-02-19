@@ -192,9 +192,10 @@ module Jpmobile
   
     # 各キャリア向けXHTML用のmeta要素を返す。
     def mobile_http_meta_tag
+      content_type = controller.response_content_type || controller.response.content_type
       charset = controller.response_charset || controller.response.charset
       charset_str = charset ? ";charset=#{charset}" : ""
-      "<meta http-equiv=\"Content-Type\" content=\"#{controller.response.content_type}#{charset_str}\" />"
+      "<meta http-equiv=\"Content-Type\" content=\"#{content_type}#{charset_str}\" />"
     end
 
     private
