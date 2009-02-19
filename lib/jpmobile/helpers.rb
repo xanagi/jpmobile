@@ -174,6 +174,34 @@ module Jpmobile
     def willcom_location_link_to(str,options={})
       link_to_url(str, willcom_location_url_for(options))
     end
+    
+    # XHTML の doctype を返す.
+    def mobile_xml_doctype
+      case request.mobile
+        when Jpmobile::Mobile::Docomo
+          # for DoCoMo
+          '<!DOCTYPE html PUBLIC "-//i-mode group (ja)//DTD XHTML i-XHTML(Locale/Ver.=ja/1.1) 1.0//EN" "i-xhtml_4ja_10.dtd">'
+        when Jpmobile::Mobile::Au
+          # for au
+          '<!DOCTYPE html PUBLIC "-//OPENWAVE//DTD XHTML 1.0//EN" "http://www.openwave.com/DTD/xhtml-basic.dtd">'
+        when Jpmobile::Mobile::Softbank
+          # for SoftBank
+          '<!DOCTYPE html PUBLIC "-//JPHONE//DTD XHTML Basic 1.0 Plus//EN" "xhtml-basic10-plus.dtd">'
+      end
+    end
+  
+    # 各キャリア向けXHTML用のmeta要素を返す。
+    def mobile_http_meta_tag
+      charset_str =  controller.response.charset ? ";charset=#{controller.response.charset}" : ""
+      case request.mobile
+        when Jpmobile::Mobile::Docomo
+          # for DoCoMo
+          "<meta http-equiv=\"Content-Type\" content=\"application/xhtml+xml#{charset_str}\" />"
+        when Jpmobile::Mobile::Au || Jpmobile::Mobile::Softbank
+          # for au or SoftBank
+          "<meta http-equiv=\"Content-Type\" content=\"text/html#{charset_str}\" />"
+      end
+    end
 
     private
     # 外部へのリンク

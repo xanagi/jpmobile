@@ -11,6 +11,25 @@ describe "DoCoMo SH902i からのアクセス" do
   it "request.mobile? は true であるべき" do
     request.mobile?.should be_true
   end
+  it "request.mobile.supports_xhtml? は true であるべき" do
+    request.mobile.supports_xhtml?.should be_true
+  end
+end
+
+describe "DoCoMo SH506i からのアクセス" do
+  before do
+    request.user_agent = "DoCoMo/1.0/SH506iC/c20/TB/W24H12"
+  end
+  controller_name :mobile_spec
+  it "request.mobile は Docomo のインスタンスであるべき" do
+    request.mobile.should be_an_instance_of(Jpmobile::Mobile::Docomo)
+  end
+  it "request.mobile? は true であるべき" do
+    request.mobile?.should be_true
+  end
+  it "request.mobile.supports_xhtml? は false であるべき" do
+    request.mobile.supports_xhtml?.should be_false
+  end
 end
 
 describe "DoCoMo SH902i からguid付きのアクセス" do

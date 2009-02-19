@@ -67,6 +67,12 @@ module Jpmobile::Mobile
     def supports_cookie?
       true
     end
+    
+    # XHTMLをサポートしているか。
+    # SoftBank 3G は XHTML をサポートする.
+    def supports_xhtml?
+      true
+    end
   end
   # ==Vodafone 3G携帯電話(J-PHONE, SoftBank含まず)
   # スーパクラスはSoftbank。
@@ -78,6 +84,12 @@ module Jpmobile::Mobile
 
     # cookieに対応しているか？
     def supports_cookie?
+      true
+    end
+    
+    # XHTMLをサポートしているか。
+    # SoftBank 3G は XHTML をサポートする.
+    def supports_xhtml?
       true
     end
   end
@@ -104,6 +116,12 @@ module Jpmobile::Mobile
 
     # cookieに対応しているか？
     def supports_cookie?
+      false
+    end
+    
+    # XHTMLをサポートしているか。
+    # SoftBank 2G は XHTML をサポートしない.
+    def supports_xhtml?
       false
     end
   end

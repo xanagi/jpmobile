@@ -155,3 +155,46 @@ describe HankakuFilterController, "SoftBank 910T からのアクセス" do
   end
   it_should_behave_like "UTF-8で通信する端末との通信(半角変換付き)"
 end
+
+#
+# XHTML Content-Type フィルタ
+#
+describe XhtmlContentTypeFilterController, "DoCoMo SH902i からのアクセス" do
+  before do
+    request.user_agent = "DoCoMo/2.0 SH902i(c100;TB;W24H12)"
+  end
+  it "レスポンスの Content-Type が 'application/xhtml+xml' であること" do
+    get :index, :q => "ｱﾌﾞﾗｶﾀﾞﾌﾞﾗ"
+    response.content_type.should == 'application/xhtml+xml'
+  end
+end
+
+describe XhtmlContentTypeFilterController, "SoftBank 910T からのアクセス" do
+  before do
+    request.user_agent = "SoftBank/1.0/910T/TJ001/SN000000000000000 Browser/NetFront/3.3 Profile/MIDP-2.0 Configuration/CLDC-1.1"
+  end
+  it "レスポンスの Content-Type が 'text/html' であること" do
+    get :index, :q => "ｱﾌﾞﾗｶﾀﾞﾌﾞﾗ"
+    response.content_type.should == 'text/html'
+  end
+end
+
+describe NonXhtmlContentTypeFilterController, "DoCoMo SH902i からのアクセス" do
+  before do
+    request.user_agent = "DoCoMo/2.0 SH902i(c100;TB;W24H12)"
+  end
+  it "レスポンスの Content-Type が 'application/xhtml+xml' であること" do
+    get :index, :q => "ｱﾌﾞﾗｶﾀﾞﾌﾞﾗ"
+    response.content_type.should == 'text/html'
+  end
+end
+
+describe NonXhtmlContentTypeFilterController, "SoftBank 910T からのアクセス" do
+  before do
+    request.user_agent = "SoftBank/1.0/910T/TJ001/SN000000000000000 Browser/NetFront/3.3 Profile/MIDP-2.0 Configuration/CLDC-1.1"
+  end
+  it "レスポンスの Content-Type が 'text/html' であること" do
+    get :index, :q => "ｱﾌﾞﾗｶﾀﾞﾌﾞﾗ"
+    response.content_type.should == 'text/html'
+  end
+end

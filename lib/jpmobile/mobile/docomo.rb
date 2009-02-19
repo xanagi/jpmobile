@@ -10,6 +10,9 @@ module Jpmobile::Mobile
     USER_AGENT_REGEXP = /^DoCoMo/
     # 対応するメールアドレスの正規表現
     MAIL_ADDRESS_REGEXP = /^.+@docomo\.ne\.jp$/
+    # FOMA なのに XHTML をサポートしないモデル
+    # http://www.nttdocomo.co.jp/service/imode/make/content/spec/index.html
+    XHTML_UNSUPPORTED_MODEL_NAME = ["N2001", "N2002", "P2002", "D2101V", "P2101V", "SH2101V", "T2101V"]
 
     # オープンiエリアがあればエリアコードを +String+ で返す。無ければ +nil+ を返す。
     def areacode
@@ -78,15 +81,41 @@ module Jpmobile::Mobile
     def supports_cookie?
       false
     end
+    
+    # XHTMLをサポートしているか。
+    # FOMA でも一部の機種では XHTML をサポートしていない.
+    def supports_xhtml?
+      parse_user_agent
+      if @generation >= 2.0
+        if XHTML_UNSUPPORTED_MODEL_NAME.include?(@model_name)
+          false
+        else
+          true
+        end
+      else
+        false
+      end
+    end
+    
     private
+    # User-Agent を解析する.
+    def parse_user_agent
+      unless @user_agent_parsed
+        if @request.user_agent =~ /^DoCoMo\/2.0 (.+)\(/
+          @model_name = $1
+          @generation = 2.0
+        elsif @request.user_agent =~ /^DoCoMo\/1.0\/(.+?)\//
+          @model_name = $1
+          @generation = 1.0
+        end
+        @user_agent_parsed = true # 解析済みフラグ.
+      end
+    end
+    
     # モデル名を返す。
     def model_name
-      if @request.env["HTTP_USER_AGENT"] =~ /^DoCoMo\/2.0 (.+)\(/
-        return $1
-      elsif @request.env["HTTP_USER_AGENT"] =~ /^DoCoMo\/1.0\/(.+?)\//
-        return $1
-      end
-      return nil
+      parse_user_agent
+      @model_name
     end
 
     # 画面の情報を含むハッシュを返す。

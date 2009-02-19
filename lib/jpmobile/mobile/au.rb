@@ -93,5 +93,11 @@ module Jpmobile::Mobile
     def supports_cookie?
       true
     end
+    
+    # XHTMLをサポートしているか。
+    # au の HDML 端末向けサービス終了に伴い、全機種 XHTML 対応となった。
+    def supports_xhtml?
+      true
+    end
   end
 end

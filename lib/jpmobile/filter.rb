@@ -5,8 +5,14 @@ require 'scanf'
 
 class ActionController::Base #:nodoc:
   def self.mobile_filter(options={})
-    options = {:emoticon=>true, :hankaku=>false}.update(options)
-
+    options = {:emoticon=>true, :hankaku=>false, :xhtml=>false}.update(options)
+    
+    # :xhtml オプションが true で、かつ docomo/XHTML対応端末の場合、
+    # Content-Type を 'application/xhtml+xml' にセットする.
+    if options[:xhtml]
+      after_filter Jpmobile::Filter::XhtmlContentTypeFilter.new
+    end
+    
     if options[:emoticon]
       around_filter Jpmobile::Filter::Emoticon::Outer.new # 外部エンコーディング<->数値文字参照
     end
@@ -119,6 +125,17 @@ module Jpmobile
       include ApplyOnlyForMobile
       @@internal = %w(ガ ギ グ ゲ ゴ ザ ジ ズ ゼ ゾ ダ ヂ ヅ デ ド バ ビ ブ ベ ボ パ ピ プ ペ ポ ヴ ア イ ウ エ オ カ キ ク ケ コ サ シ ス セ ソ タ チ ツ テ ト ナ ニ ヌ ネ ノ ハ ヒ フ ヘ ホ マ ミ ム メ モ ヤ ユ ヨ ラ リ ル レ ロ ワ ヲ ン ャ ュ ョ ァ ィ ゥ ェ ォ ッ ゛ ゜ ー ).freeze
       @@external = %w(ｶﾞ ｷﾞ ｸﾞ ｹﾞ ｺﾞ ｻﾞ ｼﾞ ｽﾞ ｾﾞ ｿﾞ ﾀﾞ ﾁﾞ ﾂﾞ ﾃﾞ ﾄﾞ ﾊﾞ ﾋﾞ ﾌﾞ ﾍﾞ ﾎﾞ ﾊﾟ ﾋﾟ ﾌﾟ ﾍﾟ ﾎﾟ ｳﾞ ｱ ｲ ｳ ｴ ｵ ｶ ｷ ｸ ｹ ｺ ｻ ｼ ｽ ｾ ｿ ﾀ ﾁ ﾂ ﾃ ﾄ ﾅ ﾆ ﾇ ﾈ ﾉ ﾊ ﾋ ﾌ ﾍ ﾎ ﾏ ﾐ ﾑ ﾒ ﾓ ﾔ ﾕ ﾖ ﾗ ﾘ ﾙ ﾚ ﾛ ﾜ ｦ ﾝ ｬ ｭ ｮ ｧ ｨ ｩ ｪ ｫ ｯ ﾞ ﾟ ｰ).freeze
+    end
+    
+    # XHTML用Content-Typeヘッダを設定するフィルタ.
+    class XhtmlContentTypeFilter
+      def filter(controller)
+        if controller.request.mobile.is_a?(Jpmobile::Mobile::Docomo)
+          if controller.request.mobile.supports_xhtml?
+            controller.response.content_type = 'application/xhtml+xml'
+          end
+        end
+      end
     end
 
     # 絵文字変換フィルタ

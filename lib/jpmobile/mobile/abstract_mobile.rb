@@ -49,6 +49,11 @@ module Jpmobile::Mobile
     def supports_cookie?
       return false
     end
+    
+    # XHTMLをサポートしているか。
+    def supports_xhtml?
+      false
+    end
 
     #XXX: lib/jpmobile.rbのautoloadで先に各キャリアの定数を定義しているから動くのです
     Jpmobile::Mobile.carriers.each do |carrier|
