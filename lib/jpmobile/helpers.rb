@@ -192,15 +192,9 @@ module Jpmobile
   
     # 各キャリア向けXHTML用のmeta要素を返す。
     def mobile_http_meta_tag
-      charset_str =  controller.response.charset ? ";charset=#{controller.response.charset}" : ""
-      case request.mobile
-        when Jpmobile::Mobile::Docomo
-          # for DoCoMo
-          "<meta http-equiv=\"Content-Type\" content=\"application/xhtml+xml#{charset_str}\" />"
-        when Jpmobile::Mobile::Au || Jpmobile::Mobile::Softbank
-          # for au or SoftBank
-          "<meta http-equiv=\"Content-Type\" content=\"text/html#{charset_str}\" />"
-      end
+      charset = controller.response_charset || controller.response.charset
+      charset_str = charset ? ";charset=#{charset}" : ""
+      "<meta http-equiv=\"Content-Type\" content=\"#{controller.response.content_type}#{charset_str}\" />"
     end
 
     private

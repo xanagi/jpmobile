@@ -4,13 +4,16 @@
 require 'scanf'
 
 class ActionController::Base #:nodoc:
+  # レスポンスの最終的な Content-Type, Charset を保存しておくためのインスタンス変数.
+  attr_accessor :response_content_type, :response_charset
+  
   def self.mobile_filter(options={})
     options = {:emoticon=>true, :hankaku=>false, :xhtml=>false}.update(options)
     
     # :xhtml オプションが true で、かつ docomo/XHTML対応端末の場合、
     # Content-Type を 'application/xhtml+xml' にセットする.
     if options[:xhtml]
-      after_filter Jpmobile::Filter::XhtmlContentTypeFilter.new
+      around_filter Jpmobile::Filter::XhtmlContentTypeFilter.new
     end
     
     if options[:emoticon]
@@ -93,7 +96,9 @@ module Jpmobile
         # Vodafone 3G/Softbank(Shift-JISにすると絵文字で不具合が生じる)以外の
         # 携帯電話の場合に適用する。
         mobile = controller.request.mobile
-        mobile && !(mobile.instance_of?(Jpmobile::Mobile::Vodafone)||mobile.instance_of?(Jpmobile::Mobile::Softbank))
+        applied = mobile && !(mobile.instance_of?(Jpmobile::Mobile::Vodafone)||mobile.instance_of?(Jpmobile::Mobile::Softbank))
+        controller.response_charset = 'Shift_JIS' if applied
+        applied
       end
       def apply_outgoing?(controller)
         [nil, "text/html", "application/xhtml+xml"].include?(controller.response.content_type) &&
@@ -129,12 +134,25 @@ module Jpmobile
     
     # XHTML用Content-Typeヘッダを設定するフィルタ.
     class XhtmlContentTypeFilter
-      def filter(controller)
+      def before(controller)
+        if self.apply? controller
+          controller.response_content_type = 'application/xhtml+xml'
+        else
+          controller.response_content_type = 'text/html'
+        end
+      end
+      def after(controller)
+        if self.apply? controller
+          controller.response.content_type = 'application/xhtml+xml'
+        end
+      end      
+      def apply?(controller)
         if controller.request.mobile.is_a?(Jpmobile::Mobile::Docomo)
           if controller.request.mobile.supports_xhtml?
-            controller.response.content_type = 'application/xhtml+xml'
+            return true
           end
         end
+        false
       end
     end
 
