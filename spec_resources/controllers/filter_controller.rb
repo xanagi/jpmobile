@@ -24,3 +24,11 @@ end
 class HankakuFilterController < FilterControllerBase
   mobile_filter :hankaku => true
 end
+
+class XhtmlContentTypeFilterController < FilterControllerBase
+  mobile_filter :xhtml => true
+end
+
+class NonXhtmlContentTypeFilterController < FilterControllerBase
+  mobile_filter :xhtml => false
+end
