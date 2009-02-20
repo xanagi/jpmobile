@@ -176,11 +176,14 @@ module Jpmobile
     end
     
     # XHTML の doctype を返す.
-    def mobile_xml_doctype
+    def mobile_xml_doctype(i_xhtml_ver = 2.3)
       case request.mobile
         when Jpmobile::Mobile::Docomo
           # for DoCoMo
-          '<!DOCTYPE html PUBLIC "-//i-mode group (ja)//DTD XHTML i-XHTML(Locale/Ver.=ja/1.1) 1.0//EN" "i-xhtml_4ja_10.dtd">'
+          charset = controller.response_charset || controller.response.charset
+          charset_str = charset ? "encoding=\"#{charset}\"" : ""
+          "<?xml version=\"1.0\" #{charset_str} ?>\n" +
+          "<!DOCTYPE html PUBLIC \"-//i-mode group (ja)//DTD XHTML i-XHTML(Locale/Ver.=ja/#{i_xhtml_ver}) 1.0//EN\" \"i-xhtml_4ja_10.dtd\">"
         when Jpmobile::Mobile::Au
           # for au
           '<!DOCTYPE html PUBLIC "-//OPENWAVE//DTD XHTML 1.0//EN" "http://www.openwave.com/DTD/xhtml-basic.dtd">'
